@@ -10,16 +10,21 @@
   let selectedImages = [];
 
   const handleBrowse = async () => {
-    selectedPath = (await open({
+    const newPath = (await open({
       directory: true,
       multiple: false,
-    })) as string;
+    })) as string | null;
+
+    if (newPath) {
+      selectedPath = newPath;
+    }
   };
 
-  $: selectedPath,
+  $: if (selectedPath) {
     invoke('find_duplicates', { path: selectedPath }).then((res: string) => {
       output = JSON.parse(res);
     });
+  }
 </script>
 
 <div class="flex h-screen flex-col overflow-hidden">
