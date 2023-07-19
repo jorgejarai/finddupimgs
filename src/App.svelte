@@ -24,7 +24,7 @@
 
 <div class="flex h-screen flex-col overflow-hidden">
   <header class="flex w-full items-center gap-4 bg-slate-200 p-4">
-    <span class="text-xl">findupimgs</span>
+    <span class="text-xl">finddupimgs</span>
     <div class="flex flex-grow items-center gap-2">
       <span>Searching in:</span>
       <input
