@@ -2,12 +2,16 @@
   import { open } from '@tauri-apps/api/dialog';
   import { invoke } from '@tauri-apps/api/tauri';
 
+  import ImageDialog from './lib/ImageDialog.svelte';
   import ImageGroup from './lib/ImageGroup.svelte';
 
-  let selectedPath = '';
+  let selectedPath = '/home/jorge/Pictures/wallpapers';
   let output = [];
 
   let selectedImages = [];
+
+  let openDialog = false;
+  let dialogPath = '';
 
   const handleBrowse = async () => {
     const newPath = (await open({
@@ -49,7 +53,13 @@
 
   <main class="flex flex-grow flex-col overflow-y-scroll">
     {#each output as group}
-      <ImageGroup {group} />
+      <ImageGroup
+        {group}
+        on:click={({ detail: { img } }) => {
+          openDialog = true;
+          dialogPath = img;
+        }}
+      />
     {/each}
   </main>
 
@@ -92,4 +102,10 @@
       >
     {/if}
   </footer>
+
+  <ImageDialog
+    isOpen={openDialog}
+    path={dialogPath}
+    on:close={() => (openDialog = false)}
+  />
 </div>
