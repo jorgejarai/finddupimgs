@@ -5,13 +5,16 @@
   import ImageDialog from './lib/ImageDialog.svelte';
   import ImageGroup from './lib/ImageGroup.svelte';
 
-  let selectedPath = '/home/jorge/Pictures/wallpapers';
+  let selectedPath = '';
   let output = [];
 
   let selectedImages = [];
 
   let openDialog = false;
   let dialogPath = '';
+
+  let loading = true;
+  let takingTooMuch = false;
 
   const handleBrowse = async () => {
     const newPath = (await open({
@@ -25,8 +28,17 @@
   };
 
   $: if (selectedPath) {
+    loading = true;
+    takingTooMuch = false;
     invoke('find_duplicates', { path: selectedPath }).then((res: string) => {
+      const tooMuchTimeout = setTimeout(() => {
+        takingTooMuch = true;
+      }, 30_000);
+
       output = JSON.parse(res);
+      loading = false;
+
+      clearTimeout(tooMuchTimeout);
     });
   }
 </script>
@@ -51,17 +63,28 @@
     </button>
   </header>
 
-  <main class="flex flex-grow flex-col overflow-y-scroll">
-    {#each output as group}
-      <ImageGroup
-        {group}
-        on:click={({ detail: { img } }) => {
-          openDialog = true;
-          dialogPath = img;
-        }}
-      />
-    {/each}
-  </main>
+  {#if loading}
+    <main class="flex flex-grow flex-col items-center justify-center gap-2">
+      <span class="cursor-default select-none text-gray-500">Loading...</span>
+      {#if takingTooMuch}
+        <span class="cursor-default select-none text-gray-500">
+          This is taking a while...
+        </span>
+      {/if}
+    </main>
+  {:else}
+    <main class="flex flex-grow flex-col overflow-y-scroll">
+      {#each output as group}
+        <ImageGroup
+          {group}
+          on:click={({ detail: { img } }) => {
+            openDialog = true;
+            dialogPath = img;
+          }}
+        />
+      {/each}
+    </main>
+  {/if}
 
   {#if selectedImages.length > 0}
     <div class="flex items-center justify-between bg-red-300 p-3">
